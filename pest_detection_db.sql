@@ -132,5 +132,20 @@ INSERT INTO `pest_info` (`name`, `description`, `control_methods`, `image_url`) 
 ('Wasps', 'A wasp is any insect of the narrow-waisted suborder Apocrita of the order Hymenoptera.', 'Wasp sprays, hanging traps. Professional removal for nests.', NULL),
 ('Weevils', 'Weevils are a type of beetle from the superfamily Curculionoidea.', 'Discard infested food, clean shelves, freeze grains.', NULL);
 
+-- ----------------------------
+-- Table structure for verification_codes
+-- ----------------------------
+DROP TABLE IF EXISTS `verification_codes`;
+CREATE TABLE `verification_codes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) NOT NULL,
+  `code` varchar(10) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `used` tinyint(1) DEFAULT '0',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ix_verification_codes_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
 

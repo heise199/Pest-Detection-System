@@ -3,6 +3,7 @@ import { ref, reactive } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { User, Message, Lock } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -55,55 +56,193 @@ const handleRegister = async () => {
 
 <template>
   <div class="register-container">
-    <el-card class="register-card">
-      <template #header>
-        <h2 class="title">用户注册</h2>
-      </template>
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="0">
-        <el-form-item prop="username">
-          <el-input v-model="form.username" placeholder="用户名" prefix-icon="User" />
-        </el-form-item>
-        <el-form-item prop="email">
-          <el-input v-model="form.email" placeholder="邮箱 (可选)" prefix-icon="Message" />
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input v-model="form.password" type="password" placeholder="密码" prefix-icon="Lock" show-password />
-        </el-form-item>
-        <el-form-item prop="confirmPassword">
-          <el-input v-model="form.confirmPassword" type="password" placeholder="确认密码" prefix-icon="Lock" show-password />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :loading="loading" class="w-100" @click="handleRegister">注册</el-button>
-        </el-form-item>
-        <div class="links">
-          <router-link to="/login">已有账号？立即登录</router-link>
+    <div class="register-wrapper">
+      <div class="register-card">
+        <div class="register-header">
+          <div class="logo-large">🐛</div>
+          <h1 class="register-title">加入 PestDetect</h1>
+          <p class="register-subtitle">创建账号开始使用</p>
         </div>
-      </el-form>
-    </el-card>
+        <el-form ref="formRef" :model="form" :rules="rules" label-width="0" class="register-form">
+          <el-form-item prop="username">
+            <el-input 
+              v-model="form.username" 
+              placeholder="用户名" 
+              size="large"
+              class="ins-input"
+            >
+              <template #prefix>
+                <el-icon><User /></el-icon>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="email">
+            <el-input 
+              v-model="form.email" 
+              placeholder="邮箱 (可选)" 
+              size="large"
+              class="ins-input"
+            >
+              <template #prefix>
+                <el-icon><Message /></el-icon>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input 
+              v-model="form.password" 
+              type="password" 
+              placeholder="密码" 
+              size="large"
+              show-password
+              class="ins-input"
+            >
+              <template #prefix>
+                <el-icon><Lock /></el-icon>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="confirmPassword">
+            <el-input 
+              v-model="form.confirmPassword" 
+              type="password" 
+              placeholder="确认密码" 
+              size="large"
+              show-password
+              class="ins-input"
+              @keyup.enter="handleRegister"
+            >
+              <template #prefix>
+                <el-icon><Lock /></el-icon>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button 
+              type="primary" 
+              :loading="loading" 
+              class="register-btn" 
+              size="large"
+              @click="handleRegister"
+            >
+              {{ loading ? '注册中...' : '注册' }}
+            </el-button>
+          </el-form-item>
+          <div class="register-footer">
+            <span class="login-link">
+              已有账号？
+              <router-link to="/login" class="link">立即登录</router-link>
+            </span>
+          </div>
+        </el-form>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .register-container {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background-color: #f0f2f5;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
 }
-.register-card {
-  width: 400px;
-}
-.title {
-  text-align: center;
-  margin: 0;
-  color: #333;
-}
-.w-100 {
+
+.register-wrapper {
   width: 100%;
+  max-width: 420px;
 }
-.links {
+
+.register-card {
+  background: var(--ins-white);
+  border-radius: var(--ins-radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  padding: 48px 40px;
+}
+
+.register-header {
   text-align: center;
+  margin-bottom: 40px;
+}
+
+.logo-large {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.register-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: var(--ins-text-primary);
+  letter-spacing: -1px;
+}
+
+.register-subtitle {
+  font-size: 15px;
+  color: var(--ins-text-secondary);
+  margin: 0;
+}
+
+.register-form {
+  margin-top: 32px;
+}
+
+.register-form :deep(.el-input__wrapper) {
+  border-radius: var(--ins-radius-small);
+  box-shadow: 0 0 0 1px var(--ins-border);
+  transition: all 0.2s ease;
+}
+
+.register-form :deep(.el-input__wrapper:hover) {
+  box-shadow: 0 0 0 1px var(--ins-text-secondary);
+}
+
+.register-form :deep(.el-input.is-focus .el-input__wrapper) {
+  box-shadow: 0 0 0 2px var(--ins-accent);
+}
+
+.register-btn {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--ins-radius-small);
+  font-weight: 600;
+  font-size: 15px;
+  background: var(--ins-accent);
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.register-btn:hover {
+  background: var(--ins-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 149, 246, 0.3);
+}
+
+.register-footer {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--ins-border);
+}
+
+.login-link {
+  font-size: 14px;
+  color: var(--ins-text-secondary);
+}
+
+.link {
+  color: var(--ins-accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--ins-accent-hover);
 }
 </style>
 

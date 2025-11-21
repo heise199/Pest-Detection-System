@@ -73,6 +73,60 @@ def generate_frames():
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     camera.release()
 
+@router.post("/upload_video", response_model=DetectionResponse)
+async def upload_video(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    # Save uploaded video
+    file_location = os.path.join(settings.UPLOAD_DIR, file.filename)
+    with open(file_location, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Process video with YOLO (process key frames)
+    try:
+        cap = cv2.VideoCapture(file_location)
+        frame_count = 0
+        class_counts = {}
+        
+        # Process every 30th frame for efficiency
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            
+            frame_count += 1
+            if frame_count % 30 == 0:  # Process every 30 frames
+                results = yolo_service.model(frame)
+                result = results[0]
+                
+                for box in result.boxes:
+                    cls_id = int(box.cls[0])
+                    label = yolo_service.class_names[cls_id]
+                    class_counts[label] = class_counts.get(label, 0) + 1
+        
+        cap.release()
+        
+        # Save original video path (for now, we don't generate annotated video)
+        output_video_path = file_location
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Video processing failed: {str(e)}")
+    
+    # Save to DB
+    db_detection = Detection(
+        user_id=current_user.id,
+        video_path=output_video_path,
+        detection_type="video",
+        result_json=class_counts
+    )
+    db.add(db_detection)
+    db.commit()
+    db.refresh(db_detection)
+    
+    return db_detection
+
 @router.get("/video_feed")
 def video_feed():
     return StreamingResponse(generate_frames(), media_type="multipart/x-mixed-replace; boundary=frame")

@@ -15,6 +15,11 @@ const router = createRouter({
       component: () => import('@/views/RegisterView.vue')
     },
     {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('@/views/ForgotPasswordView.vue')
+    },
+    {
       path: '/',
       component: () => import('@/views/Layout.vue'),
       meta: { requiresAuth: true },
@@ -44,6 +49,11 @@ const router = createRouter({
           name: 'admin',
           component: () => import('@/views/AdminView.vue'),
           meta: { requiresAdmin: true }
+        },
+        {
+          path: 'pests',
+          name: 'pests',
+          component: () => import('@/views/PestInfoView.vue')
         }
       ]
     }

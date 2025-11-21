@@ -2,103 +2,252 @@
 import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
 import { computed } from 'vue'
+import { DataLine, Camera, ChatDotRound, User, Setting, InfoFilled } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
+
+const menuItems = computed(() => {
+  const items = [
+    { path: '/', label: '数据概览', icon: 'DataLine' },
+    { path: '/detection', label: '检测中心', icon: 'Camera' },
+    { path: '/pests', label: '害虫百科', icon: 'InfoFilled' },
+    { path: '/forum', label: '交流论坛', icon: 'ChatDotRound' },
+    { path: '/profile', label: '个人中心', icon: 'User' }
+  ]
+  if (userStore.isAdmin) {
+    items.push({ path: '/admin', label: '后台管理', icon: 'Setting' })
+  }
+  return items
+})
+
+const pageTitles = {
+  '/': '数据概览',
+  '/detection': '检测中心',
+  '/pests': '害虫百科',
+  '/forum': '交流论坛',
+  '/profile': '个人中心',
+  '/admin': '后台管理'
+}
+
+const currentPageTitle = computed(() => pageTitles[route.path] || '首页')
 
 const handleLogout = () => {
   userStore.logout()
   router.push('/login')
 }
 
-const handleMenuSelect = (index) => {
-  router.push(index)
+const handleMenuSelect = (path) => {
+  router.push(path)
 }
 
 const activeMenu = computed(() => route.path)
 </script>
 
 <template>
-  <el-container class="layout-container">
-    <el-aside width="200px">
-      <div class="logo">害虫检测系统</div>
-      <el-menu
-        :default-active="activeMenu"
-        class="el-menu-vertical"
-        @select="handleMenuSelect"
-        background-color="#545c64"
-        text-color="#fff"
-        active-text-color="#ffd04b"
-      >
-        <el-menu-item index="/">
-          <el-icon><DataLine /></el-icon>
-          <span>数据概览</span>
-        </el-menu-item>
-        <el-menu-item index="/detection">
-          <el-icon><Camera /></el-icon>
-          <span>检测中心</span>
-        </el-menu-item>
-        <el-menu-item index="/forum">
-          <el-icon><ChatDotRound /></el-icon>
-          <span>交流论坛</span>
-        </el-menu-item>
-        <el-menu-item index="/profile">
-          <el-icon><User /></el-icon>
-          <span>个人中心</span>
-        </el-menu-item>
-        <el-menu-item v-if="userStore.isAdmin" index="/admin">
-          <el-icon><Setting /></el-icon>
-          <span>后台管理</span>
-        </el-menu-item>
-      </el-menu>
-    </el-aside>
-    
-    <el-container>
-      <el-header>
-        <div class="header-content">
-          <span>欢迎回来, {{ userStore.user.username }}</span>
-          <el-button type="text" @click="handleLogout" style="color: #fff;">退出登录</el-button>
+  <div class="layout-wrapper">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">🐛</div>
+          <span class="logo-text">PestDetect</span>
         </div>
-      </el-header>
-      <el-main>
+      </div>
+      <nav class="sidebar-nav">
+        <div 
+          v-for="item in menuItems" 
+          :key="item.path"
+          :class="['nav-item', { active: activeMenu === item.path || (item.path === '/' && activeMenu === '/') }]"
+          @click.stop="handleMenuSelect(item.path)"
+        >
+          <el-icon class="nav-icon">
+            <DataLine v-if="item.icon === 'DataLine'" />
+            <Camera v-else-if="item.icon === 'Camera'" />
+            <InfoFilled v-else-if="item.icon === 'InfoFilled'" />
+            <ChatDotRound v-else-if="item.icon === 'ChatDotRound'" />
+            <User v-else-if="item.icon === 'User'" />
+            <Setting v-else-if="item.icon === 'Setting'" />
+          </el-icon>
+          <span class="nav-text">{{ item.label }}</span>
+        </div>
+      </nav>
+    </aside>
+    
+    <div class="main-content">
+      <header class="top-header">
+        <div class="header-left">
+          <h2 class="page-title">{{ currentPageTitle }}</h2>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <el-avatar :size="32" class="user-avatar">
+              {{ userStore.user.username?.[0]?.toUpperCase() || 'U' }}
+            </el-avatar>
+            <span class="username">{{ userStore.user.username }}</span>
+          </div>
+          <el-button 
+            text 
+            class="logout-btn" 
+            @click="handleLogout"
+          >
+            退出
+          </el-button>
+        </div>
+      </header>
+      <main class="content-area">
         <router-view />
-      </el-main>
-    </el-container>
-  </el-container>
+      </main>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.layout-container {
+.layout-wrapper {
+  display: flex;
   height: 100vh;
+  background: var(--ins-bg);
 }
+
+.sidebar {
+  width: 260px;
+  background: var(--ins-white);
+  border-right: 1px solid var(--ins-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+}
+
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--ins-border);
+}
+
 .logo {
-  height: 60px;
-  line-height: 60px;
-  text-align: center;
-  color: #fff;
-  font-size: 18px;
-  font-weight: bold;
-  background-color: #434a50;
-}
-.el-menu-vertical {
-  height: calc(100% - 60px);
-  border-right: none;
-}
-.el-header {
-  background-color: #545c64;
-  color: #fff;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  gap: 12px;
 }
-.header-content {
+
+.logo-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ins-text-primary);
+  letter-spacing: -0.5px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+
+.nav-item {
   display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 4px;
+  border-radius: var(--ins-radius-small);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--ins-text-primary);
+}
+
+.nav-item:hover {
+  background: var(--ins-bg);
+}
+
+.nav-item.active {
+  background: rgba(0, 149, 246, 0.1);
+  color: var(--ins-accent);
+  font-weight: 600;
+}
+
+.nav-icon {
+  font-size: 20px;
+}
+
+.nav-text {
+  font-size: 15px;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.top-header {
+  background: var(--ins-white);
+  border-bottom: 1px solid var(--ins-border);
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--ins-text-primary);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
   gap: 20px;
-  align-items: center;
 }
-.el-main {
-  background-color: #f0f2f5;
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+}
+
+.username {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ins-text-primary);
+}
+
+.logout-btn {
+  color: var(--ins-text-secondary);
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: var(--ins-radius-small);
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: var(--ins-bg);
+  color: var(--ins-text-primary);
+}
+
+.content-area {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
 }
 </style>
 

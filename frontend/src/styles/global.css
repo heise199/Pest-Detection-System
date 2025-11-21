@@ -1,0 +1,113 @@
+/* Instagram风格全局样式 */
+:root {
+  --ins-bg: #fafafa;
+  --ins-white: #ffffff;
+  --ins-border: #dbdbdb;
+  --ins-text-primary: #262626;
+  --ins-text-secondary: #8e8e8e;
+  --ins-accent: #0095f6;
+  --ins-accent-hover: #1877f2;
+  --ins-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --ins-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --ins-radius: 12px;
+  --ins-radius-small: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--ins-bg);
+  color: var(--ins-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 卡片样式 */
+.ins-card {
+  background: var(--ins-white);
+  border: 1px solid var(--ins-border);
+  border-radius: var(--ins-radius);
+  box-shadow: var(--ins-shadow);
+  transition: all 0.3s ease;
+}
+
+.ins-card:hover {
+  box-shadow: var(--ins-shadow-hover);
+}
+
+/* 按钮样式 */
+.ins-btn {
+  border-radius: var(--ins-radius-small);
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.ins-btn-primary {
+  background: var(--ins-accent);
+  color: white;
+}
+
+.ins-btn-primary:hover {
+  background: var(--ins-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 149, 246, 0.3);
+}
+
+/* 输入框样式 */
+.ins-input {
+  border-radius: var(--ins-radius-small);
+  border: 1px solid var(--ins-border);
+  transition: all 0.2s ease;
+}
+
+.ins-input:focus {
+  border-color: var(--ins-accent);
+  box-shadow: 0 0 0 3px rgba(0, 149, 246, 0.1);
+}
+
+/* 文本样式 */
+.ins-text-primary {
+  color: var(--ins-text-primary);
+}
+
+.ins-text-secondary {
+  color: var(--ins-text-secondary);
+  font-size: 14px;
+}
+
+/* 间距工具类 */
+.ins-mt-1 { margin-top: 8px; }
+.ins-mt-2 { margin-top: 16px; }
+.ins-mt-3 { margin-top: 24px; }
+.ins-mt-4 { margin-top: 32px; }
+
+.ins-mb-1 { margin-bottom: 8px; }
+.ins-mb-2 { margin-bottom: 16px; }
+.ins-mb-3 { margin-bottom: 24px; }
+.ins-mb-4 { margin-bottom: 32px; }
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ins-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ins-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ins-text-secondary);
+}
+

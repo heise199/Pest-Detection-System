@@ -55,3 +55,6 @@ def get_all_users(
 ):
     return db.query(User).all()
 
+@router.get("/health")
+async def health_check():
+    return {"message": "Admin routes are working!", "status": "ok"}
