@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '@/api/axios'
-import { Bug } from '@element-plus/icons-vue'
+import { InfoFilled } from '@element-plus/icons-vue'
 
 const pests = ref([])
 const loading = ref(false)
@@ -11,10 +11,12 @@ const dialogVisible = ref(false)
 const fetchPests = async () => {
   loading.value = true
   try {
+    // 使用公共API端点获取害虫信息（普通用户也可以访问）
     const res = await api.get('/admin/pests')
-    pests.value = res.data
+    pests.value = res.data || []
   } catch (e) {
-    console.error(e)
+    console.error('获取害虫信息失败:', e)
+    pests.value = []
   } finally {
     loading.value = false
   }
@@ -56,7 +58,7 @@ onMounted(fetchPests)
       </div>
       
       <div v-if="pests.length === 0 && !loading" class="empty-state">
-        <el-icon class="empty-icon"><Bug /></el-icon>
+        <el-icon class="empty-icon"><InfoFilled /></el-icon>
         <p>暂无害虫信息</p>
       </div>
     </div>

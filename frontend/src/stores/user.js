@@ -67,6 +67,12 @@ export const useUserStore = defineStore('user', () => {
     await api.post('/register', { username, email, password })
   }
 
-  return { token, user, isLoggedIn, isAdmin, login, logout, register }
+  async function updateProfile(updates) {
+    const res = await api.put('/users/me', updates)
+    setUser(res.data)
+    return res.data
+  }
+
+  return { token, user, isLoggedIn, isAdmin, login, logout, register, updateProfile, setUser }
 })
 

@@ -2,11 +2,22 @@
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import api from '@/api/axios'
-import { Download, User, Message, Calendar, Shield } from '@element-plus/icons-vue'
+import { Download, User, Message, Calendar, Lock, Edit, Check, Close } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { useDateFormat } from '@/composables/useDateFormat'
 
 const userStore = useUserStore()
 const history = ref([])
 const loading = ref(false)
+const { formatDate, formatTime } = useDateFormat()
+
+// 编辑状态
+const editingUsername = ref(false)
+const editingEmail = ref(false)
+const editForm = ref({
+  username: '',
+  email: ''
+})
 
 const fetchHistory = async () => {
   loading.value = true
@@ -22,6 +33,51 @@ const fetchHistory = async () => {
 
 const downloadReport = (id) => {
   window.open(`http://127.0.0.1:8000/detection/report/${id}`, '_blank')
+}
+
+const startEditUsername = () => {
+  editForm.value.username = userStore.user.username || ''
+  editingUsername.value = true
+}
+
+const startEditEmail = () => {
+  editForm.value.email = userStore.user.email || ''
+  editingEmail.value = true
+}
+
+const cancelEdit = () => {
+  editingUsername.value = false
+  editingEmail.value = false
+  editForm.value = { username: '', email: '' }
+}
+
+const saveUsername = async () => {
+  if (!editForm.value.username.trim()) {
+    ElMessage.warning('用户名不能为空')
+    return
+  }
+  try {
+    await userStore.updateProfile({ username: editForm.value.username.trim() })
+    ElMessage.success('用户名更新成功')
+    editingUsername.value = false
+  } catch (e) {
+    // Error handled by interceptor
+  }
+}
+
+const saveEmail = async () => {
+  const email = editForm.value.email.trim()
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    ElMessage.warning('请输入有效的邮箱地址')
+    return
+  }
+  try {
+    await userStore.updateProfile({ email: email || null })
+    ElMessage.success('邮箱更新成功')
+    editingEmail.value = false
+  } catch (e) {
+    // Error handled by interceptor
+  }
 }
 
 onMounted(fetchHistory)
@@ -51,18 +107,93 @@ onMounted(fetchHistory)
           <el-icon class="info-icon"><User /></el-icon>
           <div class="info-content">
             <div class="info-label">用户名</div>
-            <div class="info-value">{{ userStore.user.username }}</div>
+            <div v-if="!editingUsername" class="info-value-wrapper">
+              <div class="info-value">{{ userStore.user.username }}</div>
+              <el-button 
+                text 
+                size="small" 
+                :icon="Edit"
+                @click="startEditUsername"
+                class="edit-btn"
+              >
+                编辑
+              </el-button>
+            </div>
+            <div v-else class="info-edit-wrapper">
+              <el-input 
+                v-model="editForm.username" 
+                placeholder="请输入用户名"
+                class="edit-input"
+              />
+              <div class="edit-actions">
+                <el-button 
+                  text 
+                  size="small" 
+                  type="primary"
+                  :icon="Check"
+                  @click="saveUsername"
+                >
+                  保存
+                </el-button>
+                <el-button 
+                  text 
+                  size="small"
+                  :icon="Close"
+                  @click="cancelEdit"
+                >
+                  取消
+                </el-button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="info-item">
           <el-icon class="info-icon"><Message /></el-icon>
           <div class="info-content">
             <div class="info-label">邮箱</div>
-            <div class="info-value">{{ userStore.user.email || '未设置' }}</div>
+            <div v-if="!editingEmail" class="info-value-wrapper">
+              <div class="info-value">{{ userStore.user.email || '未设置' }}</div>
+              <el-button 
+                text 
+                size="small" 
+                :icon="Edit"
+                @click="startEditEmail"
+                class="edit-btn"
+              >
+                编辑
+              </el-button>
+            </div>
+            <div v-else class="info-edit-wrapper">
+              <el-input 
+                v-model="editForm.email" 
+                type="email"
+                placeholder="请输入邮箱（可选）"
+                class="edit-input"
+              />
+              <div class="edit-actions">
+                <el-button 
+                  text 
+                  size="small" 
+                  type="primary"
+                  :icon="Check"
+                  @click="saveEmail"
+                >
+                  保存
+                </el-button>
+                <el-button 
+                  text 
+                  size="small"
+                  :icon="Close"
+                  @click="cancelEdit"
+                >
+                  取消
+                </el-button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="info-item">
-          <el-icon class="info-icon"><Shield /></el-icon>
+          <el-icon class="info-icon"><Lock /></el-icon>
           <div class="info-content">
             <div class="info-label">角色</div>
             <div class="info-value">
@@ -130,29 +261,6 @@ onMounted(fetchHistory)
   </div>
 </template>
 
-<script>
-export default {
-  methods: {
-    formatDate(dateString) {
-      if (!dateString) return '-'
-      return new Date(dateString).toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
-    },
-    formatTime(timeString) {
-      const date = new Date(timeString)
-      return date.toLocaleString('zh-CN', {
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    }
-  }
-}
-</script>
 
 <style scoped>
 .profile-container {
@@ -269,6 +377,40 @@ export default {
   font-size: 16px;
   font-weight: 500;
   color: var(--ins-text-primary);
+}
+
+.info-value-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.edit-btn {
+  color: var(--ins-accent);
+  font-size: 13px;
+  padding: 4px 8px;
+}
+
+.edit-btn:hover {
+  background: rgba(0, 149, 246, 0.1);
+}
+
+.info-edit-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.edit-input {
+  flex: 1;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 .role-badge {

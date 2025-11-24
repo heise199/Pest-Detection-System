@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import api from '@/api/axios'
 import { ElMessage } from 'element-plus'
-import { Bug, User, Plus } from '@element-plus/icons-vue'
+import { InfoFilled, User, Plus } from '@element-plus/icons-vue'
 
 const activeTab = ref('pests')
 const pests = ref([])
@@ -65,7 +65,7 @@ onMounted(fetchPests)
           :class="['tab-item', { active: activeTab === 'pests' }]"
           @click="activeTab = 'pests'; handleTabClick({ paneName: 'pests' })"
         >
-          <el-icon><Bug /></el-icon>
+          <el-icon><InfoFilled /></el-icon>
           <span>害虫百科</span>
         </div>
         <div 
@@ -105,7 +105,7 @@ onMounted(fetchPests)
               </div>
             </div>
             <div v-if="pests.length === 0 && !loading" class="empty-state">
-              <el-icon class="empty-icon"><Bug /></el-icon>
+              <el-icon class="empty-icon"><InfoFilled /></el-icon>
               <p>还没有害虫信息</p>
             </div>
           </div>

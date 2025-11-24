@@ -42,12 +42,16 @@ def _parse_smtp_configs() -> List[Dict]:
     # 如果配置了多邮箱（JSON格式）
     if settings.SMTP_CONFIGS and settings.SMTP_CONFIGS.strip():
         try:
-            configs = json.loads(settings.SMTP_CONFIGS)
+            # 移除所有换行符和多余空格，确保JSON是一行
+            smtp_configs_str = settings.SMTP_CONFIGS.strip().replace('\n', '').replace('\r', '')
+            configs = json.loads(smtp_configs_str)
             if not isinstance(configs, list):
                 logger.warning("SMTP_CONFIGS 必须是JSON数组格式")
                 configs = []
         except json.JSONDecodeError as e:
             logger.error(f"解析SMTP_CONFIGS失败: {e}")
+            logger.error(f"配置内容: {settings.SMTP_CONFIGS[:200]}...")  # 只显示前200个字符
+            logger.error("提示: JSON格式必须是一行，不能有换行符。请检查.env文件中的SMTP_CONFIGS配置")
             configs = []
     
     # 如果没有多邮箱配置，使用单邮箱配置

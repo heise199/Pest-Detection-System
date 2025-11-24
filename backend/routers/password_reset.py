@@ -99,9 +99,10 @@ async def verify_code(
             detail="验证码无效或已过期"
         )
     
-    # Mark as used
-    verification.used = True
-    db.commit()
+    # 不在这里标记为used，等重置密码成功后再标记
+    # 这样验证码可以在验证和重置之间重复使用
+    # verification.used = True
+    # db.commit()
     
     return {"message": "验证码验证成功", "verified": True}
 
@@ -113,7 +114,8 @@ async def reset_password(
     email = request.email
     code = request.code
     new_password = request.new_password
-    # Verify code first
+    
+    # Verify code first (允许使用已验证但未标记为used的验证码)
     verification = db.query(VerificationCode).filter(
         VerificationCode.email == email,
         VerificationCode.code == code,
@@ -137,6 +139,7 @@ async def reset_password(
     
     # Update password
     user.hashed_password = get_password_hash(new_password)
+    # 密码重置成功后，标记验证码为已使用
     verification.used = True
     db.commit()
     

@@ -19,9 +19,10 @@ const router = createRouter({
       name: 'forgot-password',
       component: () => import('@/views/ForgotPasswordView.vue')
     },
+    // 普通用户路由
     {
       path: '/',
-      component: () => import('@/views/Layout.vue'),
+      component: () => import('@/layouts/UserLayout.vue'),
       meta: { requiresAuth: true },
       children: [
         {
@@ -45,15 +46,37 @@ const router = createRouter({
           component: () => import('@/views/ProfileView.vue')
         },
         {
-          path: 'admin',
-          name: 'admin',
-          component: () => import('@/views/AdminView.vue'),
-          meta: { requiresAdmin: true }
-        },
-        {
           path: 'pests',
           name: 'pests',
           component: () => import('@/views/PestInfoView.vue')
+        }
+      ]
+    },
+    // 管理员路由
+    {
+      path: '/admin',
+      component: () => import('@/layouts/AdminLayout.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+      children: [
+        {
+          path: '',
+          name: 'admin',
+          component: () => import('@/views/admin/AdminDashboard.vue')
+        },
+        {
+          path: 'pests',
+          name: 'admin-pests',
+          component: () => import('@/views/admin/AdminPestsView.vue')
+        },
+        {
+          path: 'users',
+          name: 'admin-users',
+          component: () => import('@/views/admin/AdminUsersView.vue')
+        },
+        {
+          path: 'system',
+          name: 'admin-system',
+          component: () => import('@/views/admin/AdminSystemView.vue')
         }
       ]
     }
