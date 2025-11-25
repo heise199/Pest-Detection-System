@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import * as echarts from 'echarts'
 import api from '@/api/axios'
-import { User, InfoFilled, Search, TrendingUp } from '@element-plus/icons-vue'
+import { User, InfoFilled, Search, DataLine } from '@element-plus/icons-vue'
 
 const stats = ref({
   total_users: 0,
@@ -145,7 +145,7 @@ const initChart = () => {
       </div>
       <div class="stat-card">
         <div class="stat-icon trend">
-          <el-icon><TrendingUp /></el-icon>
+          <el-icon><DataLine /></el-icon>
         </div>
         <div class="stat-content">
           <div class="stat-label">今日检测</div>

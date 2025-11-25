@@ -11,6 +11,7 @@ const pests = ref([])
 const loading = ref(false)
 const dialogVisible = ref(false)
 const editingPest = ref(null)
+const formRef = ref(null)
 
 const newPest = ref({
   name: '',
@@ -32,19 +33,35 @@ const fetchPests = async () => {
 }
 
 const handleCreatePest = async () => {
+  // 表单验证
+  if (!newPest.value.name || !newPest.value.name.trim()) {
+    ElMessage.warning('请输入害虫名称')
+    return
+  }
+  
   try {
     if (editingPest.value) {
-      await api.put(`/admin/pests/${editingPest.value.id}`, newPest.value)
+      await api.put(`/admin/pests/${editingPest.value.id}`, {
+        name: newPest.value.name.trim(),
+        description: newPest.value.description?.trim() || '',
+        control_methods: newPest.value.control_methods?.trim() || '',
+        image_url: newPest.value.image_url?.trim() || ''
+      })
       ElMessage.success('更新成功')
     } else {
-      await api.post('/admin/pests', newPest.value)
+      await api.post('/admin/pests', {
+        name: newPest.value.name.trim(),
+        description: newPest.value.description?.trim() || '',
+        control_methods: newPest.value.control_methods?.trim() || '',
+        image_url: newPest.value.image_url?.trim() || ''
+      })
       ElMessage.success('添加成功')
     }
     dialogVisible.value = false
     resetForm()
     fetchPests()
   } catch (e) {
-    ElMessage.error(editingPest.value ? '更新失败' : '添加失败')
+    // 错误信息由axios拦截器处理
   }
 }
 
@@ -65,7 +82,7 @@ const handleDelete = async (id) => {
     ElMessage.success('删除成功')
     fetchPests()
   } catch (e) {
-    ElMessage.error('删除失败')
+    // 错误信息由axios拦截器处理
   }
 }
 
@@ -104,25 +121,6 @@ onMounted(fetchPests)
       <div v-for="pest in pests" :key="pest.id" class="pest-card">
         <div class="pest-header">
           <h4 class="pest-name">{{ pest.name }}</h4>
-          <div class="pest-actions">
-            <el-button 
-              text 
-              size="small"
-              :icon="Edit"
-              @click="handleEdit(pest)"
-            >
-              编辑
-            </el-button>
-            <el-button 
-              text 
-              size="small"
-              type="danger"
-              :icon="Delete"
-              @click="handleDelete(pest.id)"
-            >
-              删除
-            </el-button>
-          </div>
         </div>
         <div class="pest-content">
           <p class="pest-description">{{ pest.description || '暂无描述' }}</p>
@@ -133,6 +131,26 @@ onMounted(fetchPests)
           <div class="pest-meta">
             <span class="meta-text">创建于 {{ formatDate(pest.created_at) }}</span>
           </div>
+        </div>
+        <div class="pest-actions">
+          <el-button 
+            type="primary"
+            size="small"
+            :icon="Edit"
+            @click="handleEdit(pest)"
+            class="action-btn"
+          >
+            编辑
+          </el-button>
+          <el-button 
+            type="danger"
+            size="small"
+            :icon="Delete"
+            @click="handleDelete(pest.id)"
+            class="action-btn"
+          >
+            删除
+          </el-button>
         </div>
       </div>
       <div v-if="pests.length === 0 && !loading" class="empty-state">
@@ -147,8 +165,8 @@ onMounted(fetchPests)
       width="600px"
       @close="handleDialogClose"
     >
-      <el-form :model="newPest" label-position="top">
-        <el-form-item label="名称">
+      <el-form :model="newPest" label-position="top" ref="formRef">
+        <el-form-item label="名称" :rules="[{ required: true, message: '请输入害虫名称', trigger: 'blur' }]">
           <el-input v-model="newPest.name" placeholder="输入害虫名称" />
         </el-form-item>
         <el-form-item label="描述">
@@ -227,9 +245,6 @@ onMounted(fetchPests)
 }
 
 .pest-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 12px;
 }
 
@@ -242,7 +257,17 @@ onMounted(fetchPests)
 
 .pest-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ins-border);
+  justify-content: flex-end;
+}
+
+.action-btn {
+  flex: 1;
+  border-radius: var(--ins-radius-small);
+  font-weight: 500;
 }
 
 .pest-content {

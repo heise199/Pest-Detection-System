@@ -2,27 +2,35 @@
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { DataLine, Camera, ChatDotRound, User, InfoFilled } from '@element-plus/icons-vue'
+import { DataLine, Camera, ChatDotRound, User, InfoFilled, Setting } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 
 // 普通用户菜单项
-const menuItems = [
-  { path: '/', label: '数据概览', icon: 'DataLine' },
-  { path: '/detection', label: '检测中心', icon: 'Camera' },
-  { path: '/pests', label: '害虫百科', icon: 'InfoFilled' },
-  { path: '/forum', label: '交流论坛', icon: 'ChatDotRound' },
-  { path: '/profile', label: '个人中心', icon: 'User' }
-]
+const menuItems = computed(() => {
+  const items = [
+    { path: '/', label: '数据概览', icon: 'DataLine' },
+    { path: '/detection', label: '检测中心', icon: 'Camera' },
+    { path: '/pests', label: '害虫百科', icon: 'InfoFilled' },
+    { path: '/forum', label: '交流论坛', icon: 'ChatDotRound' },
+    { path: '/profile', label: '个人中心', icon: 'User' }
+  ]
+  // 如果是管理员，添加管理后台入口
+  if (userStore.isAdmin) {
+    items.push({ path: '/admin', label: '管理后台', icon: 'Setting' })
+  }
+  return items
+})
 
 const pageTitles = {
   '/': '数据概览',
   '/detection': '检测中心',
   '/pests': '害虫百科',
   '/forum': '交流论坛',
-  '/profile': '个人中心'
+  '/profile': '个人中心',
+  '/admin': '管理后台'
 }
 
 const currentPageTitle = computed(() => {
@@ -74,6 +82,7 @@ const handleMenuSelect = (path) => {
             <InfoFilled v-else-if="item.icon === 'InfoFilled'" />
             <ChatDotRound v-else-if="item.icon === 'ChatDotRound'" />
             <User v-else-if="item.icon === 'User'" />
+            <Setting v-else-if="item.icon === 'Setting'" />
           </el-icon>
           <span class="nav-text">{{ item.label }}</span>
         </div>

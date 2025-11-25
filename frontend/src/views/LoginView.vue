@@ -30,7 +30,12 @@ const handleLogin = async () => {
       try {
         await userStore.login(form.username, form.password)
         ElMessage.success('登录成功')
-        router.push('/')
+        // 管理员跳转到管理后台，普通用户跳转到首页
+        if (userStore.isAdmin) {
+          router.push('/admin')
+        } else {
+          router.push('/')
+        }
       } catch (error) {
         // Error handled by axios interceptor
       } finally {

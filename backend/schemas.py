@@ -47,6 +47,7 @@ class PestInfoCreate(PestInfoBase):
 
 class PestInfoResponse(PestInfoBase):
     id: int
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

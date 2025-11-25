@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { Setting, Bell, Lock, Database } from '@element-plus/icons-vue'
+import { Setting, Bell, Lock, DataLine } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const systemInfo = ref({
@@ -36,7 +36,7 @@ const handleUpdateModel = () => {
           </div>
         </div>
         <div class="info-item">
-          <el-icon class="info-icon"><Database /></el-icon>
+          <el-icon class="info-icon"><DataLine /></el-icon>
           <div class="info-content">
             <div class="info-label">数据库</div>
             <div class="info-value">{{ systemInfo.database }}</div>
@@ -64,7 +64,7 @@ const handleUpdateModel = () => {
       <div class="actions-grid">
         <el-card class="action-card" shadow="hover">
           <div class="action-content">
-            <el-icon class="action-icon"><Database /></el-icon>
+            <el-icon class="action-icon"><DataLine /></el-icon>
             <div class="action-info">
               <div class="action-title">数据备份</div>
               <div class="action-desc">备份系统数据</div>

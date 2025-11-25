@@ -27,6 +27,7 @@ class PestInfo(Base):
     description = Column(Text, nullable=True)
     control_methods = Column(Text, nullable=True)
     image_url = Column(String(255), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Detection(Base):
     __tablename__ = "detections"
